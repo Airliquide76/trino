@@ -397,6 +397,7 @@ public class BigQueryMetadata
         }
 
         List<Field> fields = tableMetadata.getColumns().stream()
+                .peek(column -> throwIfNotNull(column.getComment()))
                 .map(column -> toField(column.getName(), column.getType()))
                 .collect(toImmutableList());
 
@@ -510,5 +511,12 @@ public class BigQueryMetadata
                 return cursor.apply(constraint);
             }
         };
+    }
+
+    private static void throwIfNotNull(String comment)
+    {
+        if (comment != null) {
+            throw new TrinoException(NOT_SUPPORTED, "This connector does not support creating tables with column comment");
+        }
     }
 }
